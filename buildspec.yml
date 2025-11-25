@@ -27,6 +27,6 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       
-      # 3. Best Practice: Update Lambda function with the specific commit tag.
+      # 3. Update Lambda function with the specific commit tag.
       - echo "Updating Lambda function ($LAMBDA_FUNCTION_NAME) in $ECR_REGION..."
       - aws lambda update-function-code --region $ECR_REGION --function-name $LAMBDA_FUNCTION_NAME --image-uri $REPOSITORY_URI:$IMAGE_TAG
