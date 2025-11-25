@@ -3,14 +3,12 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      # 1. Logging in using environment variables for the endpoint
       - echo "Logging in to Amazon ECR ($ECR_REGION)..."
       - aws ecr get-login-password --region $ECR_REGION | docker login --username AWS --password-stdin $ECR_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com
-      
-      # 2. Define variables for ECR URI and image tagging
+
       - REPOSITORY_URI=$ECR_ACCOUNT_ID.dkr.ecr.$ECR_REGION.amazonaws.com/$IMAGE_NAME
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - "IMAGE_TAG=${COMMIT_HASH:=latest}"
       - echo "ECR Repository URI: $REPOSITORY_URI"
 
   build:
@@ -26,7 +24,6 @@ phases:
       - echo "Pushing the Docker images to ECR..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      
-      # 3. Update Lambda function with the specific commit tag.
+
       - echo "Updating Lambda function ($LAMBDA_FUNCTION_NAME) in $ECR_REGION..."
       - aws lambda update-function-code --region $ECR_REGION --function-name $LAMBDA_FUNCTION_NAME --image-uri $REPOSITORY_URI:$IMAGE_TAG
